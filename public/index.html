@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NVIDIA Stock Slider</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <div class="header-inner">
+      <div>
+        <p class="eyebrow">Twelve Data Market View</p>
+        <h1>52-Week Stock Position</h1>
+        <p class="updated-at" id="updated-at">Loading latest market close data...</p>
+      </div>
+      <button class="refresh-button" id="refresh-button" type="button">Refresh</button>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <section class="table-shell" aria-label="Stock slider table">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>52-Week Position</th>
+          </tr>
+        </thead>
+        <tbody id="rows">
+          <tr class="message-row">
+            <td colspan="2">Loading latest market close data...</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

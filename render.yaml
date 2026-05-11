@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: stock-slider-app
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    plan: free
+    envVars:
+      - key: TWELVE_DATA_API_KEY
+        sync: false
+      - key: STOCKS_CACHE_TTL_MINUTES
+        value: "15"
+      - key: TWELVE_DATA_BATCH_SIZE
+        value: "8"
+      - key: TWELVE_DATA_COOLDOWN_SECONDS
+        value: "65"
