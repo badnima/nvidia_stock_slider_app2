@@ -1,6 +1,7 @@
 module.exports = [
   { name: "ServiceNow", symbol: "NOW" },
   { name: "Palantir", symbol: "PLTR" },
+  { name: "NVIDIA", symbol: "NVDA" }, 
   { name: "CrowdStrike", symbol: "CRWD" },
   { name: "Salesforce", symbol: "CRM" },
   { name: "SAP", symbol: "SAP" },
