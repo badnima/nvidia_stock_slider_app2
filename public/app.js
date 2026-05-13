@@ -1,5 +1,6 @@
 const rows = document.getElementById("rows");
 const updatedAt = document.getElementById("updated-at");
+const warningText = document.getElementById("warning-text");
 const creditsUsed = document.getElementById("credits-used");
 const refreshButton = document.getElementById("refresh-button");
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -76,7 +77,7 @@ async function loadCreditsUsage() {
 
 async function loadStocks({ showLoading = true } = {}) {
   if (showLoading) {
-    renderMessage("Loading latest market close data...");
+    renderMessage("Loading current stock data...");
   }
 
   if (refreshButton) {
@@ -85,13 +86,13 @@ async function loadStocks({ showLoading = true } = {}) {
   }
 
   try {
-    const response = await fetch(`/stocks-data.json?ts=${Date.now()}`, {
+    const response = await fetch(`/api/stocks?refresh=true&ts=${Date.now()}`, {
       cache: "no-store"
     });
     const payload = await response.json();
 
     if (!response.ok) {
-      throw new Error("Unable to load market close data.");
+      throw new Error("Unable to load live stock data.");
     }
 
     const companies = payload.companies.filter((company) => (
@@ -105,8 +106,13 @@ async function loadStocks({ showLoading = true } = {}) {
 
     if (updatedAt) {
       updatedAt.textContent = payload.marketDate
-        ? `Latest close: ${payload.marketDate} · Snapshot refreshed: ${payload.updatedAt}`
-        : `Snapshot refreshed: ${payload.updatedAt}`;
+        ? `Latest quote date: ${payload.marketDate} · Cache refreshed: ${payload.updatedAt}`
+        : `Cache refreshed: ${payload.updatedAt}`;
+    }
+
+    if (warningText) {
+      warningText.hidden = !payload.warning;
+      warningText.textContent = payload.warning || "";
     }
 
     if (!companies.length) {
@@ -116,11 +122,15 @@ async function loadStocks({ showLoading = true } = {}) {
 
     renderCompanies(companies);
   } catch (error) {
-    console.error("Failed to load market close data:", error);
+    console.error("Failed to load live stock data:", error);
     if (updatedAt) {
-      updatedAt.textContent = "Latest close: unavailable";
+      updatedAt.textContent = "Latest quote date: unavailable";
     }
-    renderMessage("Unable to load market close data right now.");
+    if (warningText) {
+      warningText.hidden = true;
+      warningText.textContent = "";
+    }
+    renderMessage("Unable to load live stock data right now.");
   } finally {
     if (refreshButton) {
       refreshButton.disabled = false;

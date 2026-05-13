@@ -59,6 +59,12 @@ body {
   color: rgba(255, 255, 255, 0.82);
 }
 
+.warning-text {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: rgba(255, 218, 128, 0.95);
+}
+
 .rate-limit-note {
   margin: 10px 0 0;
   font-size: 13px;
