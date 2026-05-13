@@ -1,169 +1,61 @@
 const express = require("express");
 const path = require("path");
-const stocks = require("./data/stocks");
-const { fetchQuote, getApiKey } = require("./lib/twelve-data");
-const {
-  readStocksCache,
-  writeStocksCache
-} = require("./lib/stocks-cache");
 
 const app = express();
 const port = process.env.PORT || 3000;
 const publicDir = path.join(__dirname, "public");
-const cacheTtlMs = Number(process.env.STOCKS_CACHE_TTL_MINUTES || 15) * 60 * 1000;
-const refreshBatchSize = Number(process.env.TWELVE_DATA_BATCH_SIZE || 8);
-const refreshCooldownMs = Number(process.env.TWELVE_DATA_COOLDOWN_SECONDS || 65) * 1000;
-
-const runtime = {
-  refreshPromise: null
+const usageCache = {
+  payload: null,
+  expiresAt: 0
 };
 
-function formatTimestamp(date) {
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "America/Los_Angeles",
-    timeZoneName: "short"
-  }).format(date);
+const USAGE_CACHE_TTL_MS = 60 * 60 * 1000;
+
+function getTwelveDataApiKey() {
+  return process.env.TWELVE_DATA_API_KEY || process.env.TWELVEDATA_API_KEY || null;
 }
 
-function countLoadedCompanies(companies) {
-  return companies.filter((company) => (
-    typeof company.currentPrice === "number" &&
-    typeof company.week52Low === "number" &&
-    typeof company.week52High === "number" &&
-    company.week52High > company.week52Low
-  )).length;
-}
+async function getUsagePayload() {
+  const now = Date.now();
 
-function sortCompaniesForRefresh(companies, nowMs) {
-  return companies
-    .map((company, index) => ({ company, index }))
-    .sort((left, right) => {
-      const leftLoaded = Number.isFinite(left.company.currentPrice);
-      const rightLoaded = Number.isFinite(right.company.currentPrice);
-
-      if (leftLoaded !== rightLoaded) {
-        return leftLoaded ? 1 : -1;
-      }
-
-      const leftUpdatedAt = Date.parse(left.company.quoteUpdatedAt || "");
-      const rightUpdatedAt = Date.parse(right.company.quoteUpdatedAt || "");
-      const leftAge = Number.isFinite(leftUpdatedAt) ? nowMs - leftUpdatedAt : Number.MAX_SAFE_INTEGER;
-      const rightAge = Number.isFinite(rightUpdatedAt) ? nowMs - rightUpdatedAt : Number.MAX_SAFE_INTEGER;
-
-      if (leftAge !== rightAge) {
-        return rightAge - leftAge;
-      }
-
-      return left.index - right.index;
-    });
-}
-
-function buildPayload(cachePayload) {
-  const loadedCount = countLoadedCompanies(cachePayload.companies);
-  const marketDate = cachePayload.companies.reduce((latest, company) => (
-    company.marketDate && (!latest || company.marketDate > latest) ? company.marketDate : latest
-  ), null);
-
-  return {
-    updatedAt: cachePayload.updatedAt,
-    updatedLabel: cachePayload.updatedLabel,
-    marketDate,
-    loadedCount,
-    totalCount: cachePayload.companies.length,
-    warning: cachePayload.warning,
-    companies: cachePayload.companies
-  };
-}
-
-async function refreshCache({ forceRefresh = false } = {}) {
-  if (!getApiKey()) {
-    const error = new Error("Missing TWELVE_DATA_API_KEY environment variable.");
-    error.statusCode = 500;
-    throw error;
+  if (usageCache.payload && usageCache.expiresAt > now) {
+    return usageCache.payload;
   }
 
-  const nowMs = Date.now();
-  const cachePayload = await readStocksCache(stocks);
-  const lastUpdatedAtMs = Date.parse(cachePayload.updatedAt || "");
-  const lastAttemptAtMs = Date.parse(cachePayload.lastAttemptAt || "");
-  const isStale = !Number.isFinite(lastUpdatedAtMs) || (nowMs - lastUpdatedAtMs) >= cacheTtlMs;
-  const needsWarmup = countLoadedCompanies(cachePayload.companies) < stocks.length;
-  const inCooldown = Number.isFinite(lastAttemptAtMs) && (nowMs - lastAttemptAtMs) < refreshCooldownMs;
-
-  if (!forceRefresh && inCooldown) {
-    return buildPayload(cachePayload);
+  const apiKey = getTwelveDataApiKey();
+  if (!apiKey) {
+    return null;
   }
 
-  if (!forceRefresh && !isStale && !cachePayload.warning && !needsWarmup) {
-    return buildPayload(cachePayload);
-  }
-
-  const rankedCompanies = sortCompaniesForRefresh(cachePayload.companies, nowMs);
-  const companiesToRefresh = rankedCompanies
-    .slice(0, Math.max(1, Math.min(refreshBatchSize, stocks.length)))
-    .map(({ company }) => company);
-
-  const companiesBySymbol = new Map(cachePayload.companies.map((company) => [company.symbol, company]));
-  const successfulSymbols = [];
-
-  try {
-    for (const company of companiesToRefresh) {
-      const quote = await fetchQuote(company, getApiKey());
-      successfulSymbols.push(company.symbol);
-      companiesBySymbol.set(company.symbol, {
-        ...companiesBySymbol.get(company.symbol),
-        ...quote,
-        quoteUpdatedAt: new Date().toISOString()
-      });
+  const response = await fetch(`https://api.twelvedata.com/api_usage?apikey=${encodeURIComponent(apiKey)}`, {
+    headers: {
+      "user-agent": "nvidia-stock-slider-app/1.0"
     }
+  });
 
-    const nextPayload = {
-      ...cachePayload,
-      updatedAt: new Date().toISOString(),
-      updatedLabel: formatTimestamp(new Date()),
-      lastAttemptAt: new Date().toISOString(),
-      warning: null,
-      companies: stocks.map((stock) => companiesBySymbol.get(stock.symbol))
-    };
-
-    await writeStocksCache(nextPayload);
-    return buildPayload(nextPayload);
-  } catch (error) {
-    const warning = successfulSymbols.length
-      ? `Partial refresh completed before Twelve Data stopped the request: ${error.message}`
-      : error.message;
-
-    const fallbackPayload = {
-      ...cachePayload,
-      updatedAt: cachePayload.updatedAt || new Date().toISOString(),
-      updatedLabel: cachePayload.updatedLabel || formatTimestamp(new Date()),
-      lastAttemptAt: new Date().toISOString(),
-      warning,
-      companies: stocks.map((stock) => companiesBySymbol.get(stock.symbol))
-    };
-
-    await writeStocksCache(fallbackPayload);
-    return buildPayload(fallbackPayload);
-  }
-}
-
-async function getStocksPayload(options = {}) {
-  if (runtime.refreshPromise) {
-    return runtime.refreshPromise;
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Twelve Data usage endpoint returned ${response.status}. ${detail.slice(0, 200)}`);
   }
 
-  runtime.refreshPromise = refreshCache(options);
+  const payload = await response.json();
+  const usedHeader = response.headers.get("api-credits-used");
+  const leftHeader = response.headers.get("api-credits-left");
+  const used = Number(usedHeader);
+  const left = Number(leftHeader);
+  const limit = Number.isFinite(used) && Number.isFinite(left) ? used + left : 800;
 
-  try {
-    return await runtime.refreshPromise;
-  } finally {
-    runtime.refreshPromise = null;
-  }
+  const normalized = {
+    usedToday: Number.isFinite(used) ? used : null,
+    limit,
+    leftToday: Number.isFinite(left) ? left : null,
+    raw: payload
+  };
+
+  usageCache.payload = normalized;
+  usageCache.expiresAt = now + USAGE_CACHE_TTL_MS;
+
+  return normalized;
 }
 
 app.use(express.static(publicDir));
@@ -172,22 +64,29 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.get("/api/stocks", async (req, res) => {
+app.get("/api/credits", async (_req, res) => {
   try {
-    const payload = await getStocksPayload({
-      forceRefresh: req.query.refresh === "true"
-    });
+    const payload = await getUsagePayload();
+    if (!payload) {
+      res.status(204).end();
+      return;
+    }
+
     res.json(payload);
   } catch (error) {
-    console.error("Failed to load stock data:", error);
-    res.status(error.statusCode || 502).json({
-      error: error.message || "Unable to load stock data right now."
+    console.error("Failed to load Twelve Data usage:", error);
+    res.status(502).json({
+      error: "Unable to load API credit usage right now."
     });
   }
 });
 
 app.get("/", (_req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));
+});
+
+app.get("/stock_slider.html", (_req, res) => {
+  res.sendFile(path.join(publicDir, "stock_slider.html"));
 });
 
 app.listen(port, () => {
