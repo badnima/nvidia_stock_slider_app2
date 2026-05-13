@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Software Earnings Summary</title>
+  <style>
+    :root {
+      --bg: #F8F9FA;
+      --navy: #1A1A2E;
+      --green: #76B900;
+      --border: #E5E7EB;
+      --muted: #6B7280;
+      --box: #F9FAFB;
+      --ink: #111827;
+      --red: #DC2626;
+      --good: #16803A;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    header {
+      background: var(--navy);
+      color: white;
+      padding: 28px clamp(18px, 4vw, 48px);
+      border-bottom: 1px solid rgba(118, 185, 0, 0.35);
+      box-shadow: 0 12px 40px rgba(118, 185, 0, 0.22);
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.7rem, 3vw, 2.8rem);
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 0;
+      color: #D1D5DB;
+      max-width: 1060px;
+      font-size: 0.98rem;
+    }
+
+    main {
+      width: min(1440px, calc(100% - 32px));
+      margin: 26px auto 48px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      background: var(--green);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(17, 24, 39, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .title-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      letter-spacing: 0;
+    }
+
+    .period {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 500;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      background: rgba(118, 185, 0, 0.12);
+      border: 1px solid rgba(118, 185, 0, 0.35);
+      color: #345500;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      min-height: 86px;
+      background: var(--box);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 1.02rem;
+      line-height: 1.15;
+    }
+
+    .metric small {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .positive { color: var(--good) !important; }
+    .negative { color: var(--red) !important; }
+
+    .range {
+      padding: 1px 2px 2px;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 0.72rem;
+      margin-bottom: 7px;
+    }
+
+    .track {
+      position: relative;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #CBD5E1, var(--green));
+      overflow: visible;
+    }
+
+    .marker {
+      position: absolute;
+      top: 50%;
+      left: var(--pos);
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 3px solid var(--navy);
+      box-shadow: 0 0 0 3px rgba(118, 185, 0, 0.22);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 19px;
+      color: #374151;
+      font-size: 0.88rem;
+    }
+
+    li + li { margin-top: 7px; }
+
+    .source {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    a {
+      color: #315F00;
+      font-weight: 700;
+      text-decoration-color: rgba(118, 185, 0, 0.45);
+    }
+
+    .sources-panel {
+      margin-top: 24px;
+      padding: 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .sources-panel h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+    }
+
+    .sources-panel p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .sources-list {
+      columns: 2 360px;
+      font-size: 0.82rem;
+      padding-left: 18px;
+      margin: 0;
+    }
+
+    .sources-list li {
+      break-inside: avoid;
+      margin: 0 0 7px;
+    }
+
+    @media (max-width: 760px) {
+      main { width: min(100% - 20px, 1440px); }
+      .toolbar { align-items: flex-start; flex-direction: column; }
+      .grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: 1fr; }
+      .card { padding: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AI Software Earnings Summary</h1>
+    <p>Most recently available quarterly earnings, public quote snapshots, AI product/partnership updates, and short-term outlook notes. Stock data is as of May 12, 2026; private-company entries are estimates from public run-rate and ARR disclosures.</p>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <div><span class="dot"></span> NVIDIA green marks the current price on each trailing-year stock range.</div>
+      <div class="legend">EPS is diluted GAAP unless labeled adjusted. ADR stock prices are shown in USD.</div>
+    </div>
+
+    <section class="grid" id="cards"></section>
+
+    <section class="sources-panel">
+      <h3>Sources And Methodology</h3>
+      <p>Financial statement values use company IR releases and SEC-derived public tables where available; stock snapshots and ranges use public quote pages. Analyst reaction is summarized only when public consensus/target commentary was visible.</p>
+      <ul class="sources-list" id="sources"></ul>
+    </section>
+  </main>
+
+  <script>
+    const companies = [
+      {
+        name: "ServiceNow", ticker: "NOW", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "SaaS workflow",
+        revenue: "$3.77B", yoy: "+22.1%", eps: "$0.45", netIncome: "$469M",
+        stock: { price: 91.49, ytd: 11.69, low: 81.24, high: 206.99 },
+        bullets: [
+          "Subscription revenue and remaining performance obligations drove the quarter; management continued to point to durable workflow consolidation demand.",
+          "AI highlights: Now Assist, AI Agent Studio, Workflow Data Fabric, and NVIDIA/Microsoft ecosystem work positioned ServiceNow as an agentic-AI control plane.",
+          "Analysts: public consensus remained Buy, with average targets above the trading price after the quarter.",
+          "Outlook: management stayed constructive on subscription growth and large-enterprise GenAI workflow expansion."
+        ],
+        source: "https://investors.servicenow.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Palantir", ticker: "PLTR", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "AI platform",
+        revenue: "$1.63B", yoy: "+84.7%", eps: "$0.34", netIncome: "$871M",
+        stock: { price: 125.34, ytd: 65.31, low: 29.31, high: 190.00 },
+        bullets: [
+          "U.S. commercial and government demand for AIP drove outsized revenue acceleration and margin expansion.",
+          "AI highlights: AIP bootcamps, defense AI deployments, Warp Speed manufacturing, and enterprise ontology adoption remained core adoption signals.",
+          "Analysts: consensus stayed split because valuation expanded faster than targets, even as several firms raised estimates.",
+          "Outlook: management raised full-year expectations and framed demand as constrained more by deployment capacity than pipeline."
+        ],
+        source: "https://investors.palantir.com/financials/quarterly-results"
+      },
+      {
+        name: "CrowdStrike", ticker: "CRWD", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "Cybersecurity",
+        revenue: "$1.31B", yoy: "+23.3%", eps: "$0.15", netIncome: "$39M",
+        stock: { price: 540.98, ytd: 58.99, low: 250.81, high: 545.54 },
+        bullets: [
+          "ARR growth, Falcon Flex adoption, and module expansion offset continued scrutiny from last year's outage remediation.",
+          "AI highlights: Charlotte AI, Falcon exposure management, AI security posture controls, and cloud security integrations were emphasized.",
+          "Analysts: most stayed positive, with targets moving higher after ARR and free-cash-flow resilience.",
+          "Outlook: guidance implied solid subscription growth, with management focused on platform consolidation and AI-native SOC automation."
+        ],
+        source: "https://ir.crowdstrike.com/news-events/press-releases"
+      },
+      {
+        name: "Salesforce", ticker: "CRM", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "CRM + agents",
+        revenue: "$11.20B", yoy: "+12.1%", eps: "$2.07", netIncome: "$1.94B",
+        stock: { price: 131.63, ytd: -18.52, low: 122.44, high: 201.12 },
+        bullets: [
+          "Growth was led by subscription revenue, Data Cloud, and large multi-cloud renewals, while investors focused on AI monetization timing.",
+          "AI highlights: Agentforce, Einstein, Data Cloud, Slack AI, and expanded AWS/Google/IBM ecosystem integrations remained the central strategy.",
+          "Analysts: targets were mixed after guidance, with bulls citing Agentforce pipeline and bears citing slower near-term monetization.",
+          "Outlook: management guided for continued double-digit revenue growth with margin discipline."
+        ],
+        source: "https://investor.salesforce.com/press-releases/"
+      },
+      {
+        name: "SAP", ticker: "SAP", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "ERP cloud",
+        revenue: "€9.0B", yoy: "+13% CC", eps: "€1.04", netIncome: "€1.2B",
+        stock: { price: 286.12, ytd: 16.8, low: 224.80, high: 323.00 },
+        bullets: [
+          "Cloud revenue and current cloud backlog grew strongly, led by S/4HANA Cloud and business transformation programs.",
+          "AI highlights: Joule agents, SAP Business Data Cloud with Databricks, WalkMe, and embedded Business AI across finance, HR, and supply-chain workflows.",
+          "Analysts: commentary remained constructive after cloud backlog strength and operating leverage.",
+          "Outlook: management maintained 2026 ambitions, emphasizing cloud ERP migrations and AI-enhanced business-process automation."
+        ],
+        source: "https://www.sap.com/docs/download/investors/2026/sap-2026-q1-statement.pdf"
+      },
+      {
+        name: "IBM", ticker: "IBM", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "Hybrid AI",
+        revenue: "$15.98B", yoy: "+7.7%", eps: "$1.13", netIncome: "$1.06B",
+        stock: { price: 284.97, ytd: 30.1, low: 226.74, high: 323.42 },
+        bullets: [
+          "Software and Red Hat remained the growth drivers, while consulting improved around AI transformation work.",
+          "AI highlights: watsonx, Granite models, Red Hat AI, and a multi-billion-dollar generative-AI book of business supported demand.",
+          "Analysts: consensus was more neutral than bullish because the stock had already rerated.",
+          "Outlook: management reiterated revenue growth and free-cash-flow confidence, led by hybrid cloud and AI services."
+        ],
+        source: "https://www.ibm.com/investor/financials/earnings"
+      },
+      {
+        name: "Snowflake", ticker: "SNOW", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "Data cloud",
+        revenue: "$1.28B", yoy: "+30%", eps: "-$0.76", netIncome: "-$267M",
+        stock: { price: 209.24, ytd: 35.0, low: 119.05, high: 254.50 },
+        bullets: [
+          "Product revenue, large-customer expansion, and consumption stabilization drove the quarter.",
+          "AI highlights: Cortex AI, Snowflake Intelligence, Iceberg tables, Snowpark Container Services, and partner integrations with OpenAI/Anthropic-style model ecosystems.",
+          "Analysts: sentiment improved as growth reaccelerated and AI workloads broadened usage.",
+          "Outlook: management guided for continued product-revenue growth while investing in AI and open table formats."
+        ],
+        source: "https://investors.snowflake.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Oracle", ticker: "ORCL", period: "Q3 FY2026, quarter ended Feb. 28, 2026", tag: "Cloud infra",
+        revenue: "$17.19B", yoy: "+22%", eps: "$1.26", netIncome: "$3.6B",
+        stock: { price: 122.72, ytd: -26.7, low: 118.86, high: 265.39 },
+        bullets: [
+          "Cloud infrastructure and applications growth remained the story, with large AI training contracts driving backlog.",
+          "AI highlights: OCI GPU clusters, Oracle Database@Azure/Google/AWS, OpenAI and other frontier-model workloads, and AI embedded in Fusion apps.",
+          "Analysts: targets were adjusted around timing of OCI capacity additions and AI revenue conversion.",
+          "Outlook: management framed demand as supply-constrained, with large RPO supporting future growth."
+        ],
+        source: "https://investor.oracle.com/financials/default.aspx"
+      },
+      {
+        name: "Adobe", ticker: "ADBE", period: "Q1 FY2026, quarter ended Feb. 28, 2026", tag: "Creative AI",
+        revenue: "$6.40B", yoy: "+11%", eps: "$4.14", netIncome: "$1.81B",
+        stock: { price: 360.66, ytd: 7.7, low: 318.50, high: 455.19 },
+        bullets: [
+          "Digital Media and Document Cloud continued growing, while investors watched Firefly monetization and Creative Cloud seat expansion.",
+          "AI highlights: Firefly, GenStudio, Acrobat AI Assistant, Express, and enterprise content supply-chain workflows were highlighted.",
+          "Analysts: reaction was mixed; product momentum was praised, but monetization timing kept targets measured.",
+          "Outlook: management reaffirmed growth expectations and expects AI to expand usage before larger direct monetization."
+        ],
+        source: "https://www.adobe.com/investor-relations.html"
+      },
+      {
+        name: "Workday", ticker: "WDAY", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "HCM + finance",
+        revenue: "$2.53B", yoy: "+14.5%", eps: "$0.68", netIncome: "$186M",
+        stock: { price: 236.24, ytd: -4.5, low: 205.33, high: 294.00 },
+        bullets: [
+          "Subscription revenue and financial-management demand drove results, with large-enterprise HCM renewals remaining resilient.",
+          "AI highlights: Workday Illuminate, role-based AI agents, agent system-of-record positioning, and acquisitions supporting conversational work automation.",
+          "Analysts: consensus remained Buy, with targets clustered modestly above the stock.",
+          "Outlook: management emphasized subscription backlog visibility and disciplined investment in AI agents."
+        ],
+        source: "https://investor.workday.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Atlassian", ticker: "TEAM", period: "Q3 FY2026, quarter ended Mar. 31, 2026", tag: "Team software",
+        revenue: "$1.79B", yoy: "+32%", eps: "Not disclosed", netIncome: "Not disclosed",
+        stock: { price: 161.30, ytd: -33.4, low: 111.49, high: 325.00 },
+        bullets: [
+          "Cloud revenue and enterprise editions drove growth; Data Center migrations remained an important tailwind.",
+          "AI highlights: Rovo search, Rovo agents, Atlassian Intelligence, Loom AI, and workflow automation across Jira and Confluence saw accelerating adoption.",
+          "Analysts: several targets moved higher on revenue strength, though valuation and cloud margin timing kept debate active.",
+          "Outlook: management pointed to durable cloud migrations and AI-assisted teamwork as near-term growth engines."
+        ],
+        source: "https://investors.atlassian.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "DocuSign", ticker: "DOCU", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "Agreements",
+        revenue: "$776M", yoy: "+8%", eps: "$0.26", netIncome: "$55M",
+        stock: { price: 79.92, ytd: -10.7, low: 62.02, high: 103.51 },
+        bullets: [
+          "Billings and agreement-cloud expansion improved as the company repositioned beyond e-signature workflows.",
+          "AI highlights: Intelligent Agreement Management, Navigator, contract analytics, and AI-assisted clause extraction were central adoption themes.",
+          "Analysts: reaction was cautious-to-positive, with targets lifted modestly where IAM traction was credited.",
+          "Outlook: management expects measured growth, margin discipline, and larger platform attach over time."
+        ],
+        source: "https://investor.docusign.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Elastic", ticker: "ESTC", period: "Q3 FY2026, quarter ended Jan. 31, 2026", tag: "Search AI",
+        revenue: "$450M", yoy: "+17.7%", eps: "$0.07", netIncome: "$7.8M",
+        stock: { price: 96.13, ytd: 8.5, low: 69.00, high: 129.81 },
+        bullets: [
+          "Cloud and security/search use cases carried growth, while self-managed demand remained steadier.",
+          "AI highlights: Elasticsearch vector search, semantic reranking, AI Assistant for Security and Observability, and cloud partner adoption supported GenAI workloads.",
+          "Analysts: consensus stayed Buy after stable cloud growth and AI search positioning.",
+          "Outlook: management expects AI search and security analytics to remain key demand drivers."
+        ],
+        source: "https://ir.elastic.co/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Siemens", ticker: "SIEGY", period: "Q1 FY2026, quarter ended Dec. 31, 2025", tag: "Industrial AI",
+        revenue: "€18.4B", yoy: "+3%", eps: "€2.68", netIncome: "€2.1B",
+        stock: { price: 141.03, ytd: 31.0, low: 89.48, high: 140.62 },
+        bullets: [
+          "Digital Industries remained cyclical, while Smart Infrastructure and Mobility provided support.",
+          "AI highlights: Siemens Industrial Copilot with Microsoft, NVIDIA Omniverse digital-twin work, and Teamcenter/Industrial Edge AI remained strategic.",
+          "Analysts: European broker commentary stayed constructive on automation recovery and software mix.",
+          "Outlook: management expected gradual short-cycle recovery, with software and electrification balancing factory-automation softness."
+        ],
+        source: "https://www.siemens.com/global/en/company/investor-relations/events-publications-ad-hoc/quarterly-statements.html"
+      },
+      {
+        name: "Dassault Systèmes", ticker: "DASTY", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "Virtual twins",
+        revenue: "€1.62B", yoy: "+8%", eps: "€0.30", netIncome: "€246M",
+        stock: { price: 46.50, ytd: 21.0, low: 34.12, high: 48.52 },
+        bullets: [
+          "3DEXPERIENCE, life sciences, and manufacturing software supported growth despite uneven macro demand.",
+          "AI highlights: virtual twin experiences, generative design, sovereign cloud/AI with OUTSCALE, and simulation-led AI workflows remained priorities.",
+          "Analysts: consensus leaned Hold/Buy after a steadier quarter, with focus on license timing.",
+          "Outlook: management emphasized recurring software, industry diversification, and AI-enhanced design workflows."
+        ],
+        source: "https://www.3ds.com/investors"
+      },
+      {
+        name: "Synopsys", ticker: "SNPS", period: "Q1 FY2026, quarter ended Jan. 31, 2026", tag: "EDA",
+        revenue: "$1.77B", yoy: "+2%", eps: "$1.98", netIncome: "$316M",
+        stock: { price: 602.12, ytd: 28.0, low: 365.74, high: 651.73 },
+        bullets: [
+          "Design automation demand remained resilient, with IP timing and Ansys-related integration planning shaping investor focus.",
+          "AI highlights: Synopsys.ai, DSO.ai, VSO.ai, and AI-driven chip-design optimization supported advanced-node and 3DIC customers.",
+          "Analysts: targets generally moved higher with semiconductor design-cycle optimism.",
+          "Outlook: management pointed to AI chip complexity, IP reuse, and Ansys synergies as durable growth supports."
+        ],
+        source: "https://investor.synopsys.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Cadence Design Systems", ticker: "CDNS", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "EDA",
+        revenue: "$1.24B", yoy: "+22%", eps: "$1.11", netIncome: "$308M",
+        stock: { price: 339.85, ytd: 13.5, low: 221.56, high: 376.45 },
+        bullets: [
+          "Core EDA, verification, and systems-design demand remained strong on AI silicon investment.",
+          "AI highlights: Cadence.AI, Cerebrus, JedAI, Palladium/Zebu acceleration, and NVIDIA-supported simulation workflows supported customer adoption.",
+          "Analysts: consensus remained positive after stronger bookings and AI semiconductor exposure.",
+          "Outlook: management expected continued growth from hyperscale, automotive, and AI infrastructure design complexity."
+        ],
+        source: "https://ir.cadence.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Zoom", ticker: "ZM", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "Collaboration",
+        revenue: "$1.20B", yoy: "+2.6%", eps: "$0.57", netIncome: "$178M",
+        stock: { price: 76.44, ytd: -4.0, low: 66.45, high: 89.50 },
+        bullets: [
+          "Enterprise growth, Contact Center, and Workvivo offset muted online churn dynamics.",
+          "AI highlights: AI Companion, Zoom Workplace, docs, meeting summaries, agentic tasks, and customer-experience AI were core product messages.",
+          "Analysts: consensus stayed Hold as growth remained modest despite strong cash generation.",
+          "Outlook: management guided for low-single-digit growth while using AI features to defend and expand enterprise seats."
+        ],
+        source: "https://investors.zoom.us/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Akamai", ticker: "AKAM", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "Edge cloud",
+        revenue: "$1.03B", yoy: "+3%", eps: "$1.16", netIncome: "$174M",
+        stock: { price: 77.21, ytd: -8.5, low: 67.51, high: 106.80 },
+        bullets: [
+          "Security and compute were strategic growth areas, while delivery continued to face pricing and traffic-mix pressure.",
+          "AI highlights: Guardicore segmentation, API security, Gecko edge compute, and low-latency inference use cases remained priorities.",
+          "Analysts: some targets were trimmed after muted growth commentary.",
+          "Outlook: management expects security and cloud compute to offset delivery softness over time."
+        ],
+        source: "https://www.akamai.com/investor-relations"
+      },
+      {
+        name: "Box", ticker: "BOX", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "Content cloud",
+        revenue: "$282M", yoy: "+5.7%", eps: "$0.28", netIncome: "$42M",
+        stock: { price: 32.63, ytd: 3.7, low: 28.50, high: 38.80 },
+        bullets: [
+          "Suite attach, governance, and enterprise content-management renewals supported modest growth and margin expansion.",
+          "AI highlights: Box AI, Box Hubs, intelligent content management, metadata extraction, and workflow automation drove platform messaging.",
+          "Analysts: consensus remained constructive but measured because revenue growth is still mid-single digit.",
+          "Outlook: management emphasized AI content workflows and higher suite penetration as growth levers."
+        ],
+        source: "https://www.boxinvestorrelations.com/financials/default.aspx"
+      },
+      {
+        name: "Cloudflare", ticker: "NET", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "Developer edge",
+        revenue: "$479M", yoy: "+25%", eps: "-$0.10", netIncome: "-$35M",
+        stock: { price: 179.23, ytd: 68.4, low: 95.00, high: 258.00 },
+        bullets: [
+          "Large-customer growth, security, and developer-platform adoption drove revenue, though profitability remained investment-oriented.",
+          "AI highlights: Workers AI, AI Gateway, Vectorize, AutoRAG, inference at the edge, and model-provider controls gained enterprise traction.",
+          "Analysts: targets moved higher after better growth, with valuation still the main concern.",
+          "Outlook: management is leaning into AI traffic, security consolidation, and platform expansion."
+        ],
+        source: "https://cloudflare.net/news-events/press-releases"
+      },
+      {
+        name: "Commvault", ticker: "CVLT", period: "Q4 FY2026, quarter ended Mar. 31, 2026", tag: "Cyber resilience",
+        revenue: "$275M", yoy: "+22%", eps: "$0.52", netIncome: "$23M",
+        stock: { price: 176.35, ytd: 17.0, low: 122.00, high: 194.00 },
+        bullets: [
+          "Subscription and SaaS ARR growth drove the quarter as customers modernized backup and recovery estates.",
+          "AI highlights: Cleanroom Recovery, Cloud Rewind, Arlie AI, and Microsoft Azure integrations supported cyber-recovery automation.",
+          "Analysts: consensus stayed Buy after better subscription momentum.",
+          "Outlook: management expects cyber resilience and cloud recovery to sustain double-digit recurring-revenue growth."
+        ],
+        source: "https://ir.commvault.com/news-events/press-releases"
+      },
+      {
+        name: "Dropbox", ticker: "DBX", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "Content work",
+        revenue: "$628M", yoy: "-1%", eps: "$0.32", netIncome: "$108M",
+        stock: { price: 28.40, ytd: -7.9, low: 24.15, high: 33.34 },
+        bullets: [
+          "Paying-user softness continued, but disciplined cost control and share repurchases supported earnings and cash flow.",
+          "AI highlights: Dropbox Dash, Dropbox AI, universal search, and content intelligence remained the main product pivots.",
+          "Analysts: consensus remained Hold as AI product optionality has not yet offset mature storage growth.",
+          "Outlook: management is focused on retention, margin, and new AI workspace monetization."
+        ],
+        source: "https://investors.dropbox.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Fastly", ticker: "FSLY", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "Edge delivery",
+        revenue: "$140M", yoy: "+4%", eps: "-$0.26", netIncome: "-$40M",
+        stock: { price: 7.83, ytd: -6.8, low: 4.65, high: 12.08 },
+        bullets: [
+          "Enterprise edge demand improved slowly, but profitability and revenue growth remained constrained.",
+          "AI highlights: Compute@Edge, AI Accelerator, bot management, API security, and low-latency inference support were the main AI-adjacent offerings.",
+          "Analysts: reaction stayed cautious because growth recovery is gradual.",
+          "Outlook: management emphasized platform simplification, security attach, and improving operating leverage."
+        ],
+        source: "https://investors.fastly.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "MongoDB", ticker: "MDB", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "Developer data",
+        revenue: "$548M", yoy: "+20%", eps: "-$0.08", netIncome: "-$6M",
+        stock: { price: 336.57, ytd: 51.2, low: 140.78, high: 407.29 },
+        bullets: [
+          "Atlas consumption and enterprise customer expansion drove growth despite variable workload optimization trends.",
+          "AI highlights: Atlas Vector Search, MongoDB AI Applications Program, LangChain/LlamaIndex-style ecosystem work, and app modernization use cases led adoption.",
+          "Analysts: consensus remained Buy after stronger consumption and AI app positioning.",
+          "Outlook: management expects Atlas and AI-native application development to support durable database consolidation."
+        ],
+        source: "https://investors.mongodb.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "NetApp", ticker: "NTAP", period: "Q3 FY2026, quarter ended Jan. 30, 2026", tag: "Enterprise data",
+        revenue: "$1.69B", yoy: "+6%", eps: "$1.42", netIncome: "$299M",
+        stock: { price: 104.02, ytd: -11.0, low: 70.85, high: 135.45 },
+        bullets: [
+          "All-flash arrays, public-cloud storage services, and operating discipline supported earnings.",
+          "AI highlights: ONTAP AI, NVIDIA DGX BasePOD validations, BlueXP, and hybrid-cloud data pipelines were emphasized.",
+          "Analysts: consensus stayed Hold/Buy, with AI storage opportunity balanced against hardware-cycle caution.",
+          "Outlook: management expects flash refreshes and AI data-management demand to support growth."
+        ],
+        source: "https://investors.netapp.com/financial-information/quarterly-results"
+      },
+      {
+        name: "Pure Storage", ticker: "PSTG", period: "Q4 FY2026, quarter ended Feb. 1, 2026", tag: "Flash storage",
+        revenue: "$879M", yoy: "+11%", eps: "$0.20", netIncome: "$69M",
+        stock: { price: 64.72, ytd: 4.4, low: 38.78, high: 80.13 },
+        bullets: [
+          "Subscription services and high-performance flash demand drove growth, with enterprise AI data pipelines a key theme.",
+          "AI highlights: AIRI with NVIDIA, FlashBlade//S, Portworx, and Evergreen architecture supported AI and container workloads.",
+          "Analysts: targets generally stayed constructive on AI storage demand and subscription mix.",
+          "Outlook: management emphasized modern data centers, power efficiency, and AI-ready storage consolidation."
+        ],
+        source: "https://investor.purestorage.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Rubrik", ticker: "RBRK", period: "Q4 FY2026, quarter ended Jan. 31, 2026", tag: "Data security",
+        revenue: "$258M", yoy: "+47%", eps: "-$0.25", netIncome: "-$45M",
+        stock: { price: 84.87, ytd: 26.9, low: 39.19, high: 103.11 },
+        bullets: [
+          "Subscription ARR and enterprise cyber-recovery wins drove rapid growth while losses narrowed.",
+          "AI highlights: Rubrik Annapurna, Ruby AI, DSPM, Microsoft Sentinel/Entra integrations, and data-risk intelligence were highlighted.",
+          "Analysts: consensus was broadly positive after ARR strength, though valuation remained elevated.",
+          "Outlook: management expects cyber resilience, identity/data threat response, and cloud workload protection to sustain growth."
+        ],
+        source: "https://ir.rubrik.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Teradata", ticker: "TDC", period: "Q1 2026, quarter ended Mar. 31, 2026", tag: "Analytics",
+        revenue: "$403M", yoy: "-2%", eps: "$0.24", netIncome: "$24M",
+        stock: { price: 21.61, ytd: -29.6, low: 17.72, high: 34.14 },
+        bullets: [
+          "Cloud ARR growth continued, but legacy license and services transitions weighed on total revenue.",
+          "AI highlights: VantageCloud Lake, ClearScape Analytics, AI Unlimited, and enterprise feature engineering remained central.",
+          "Analysts: consensus stayed cautious after slower total revenue and cloud-transition execution risk.",
+          "Outlook: management is focused on cloud ARR, cost control, and AI analytics use cases in large enterprises."
+        ],
+        source: "https://investor.teradata.com/financials/quarterly-results/default.aspx"
+      },
+      {
+        name: "Databricks", ticker: "Private", period: "2026 public estimate / run-rate disclosures", tag: "Lakehouse AI",
+        revenue: "$5.4B est. ARR/run-rate", yoy: "+65% est.", eps: "N/A", netIncome: "Not disclosed",
+        privateMetric: "AI revenue est. $1.4B; data revenue est. $4.0B",
+        bullets: [
+          "Estimate: roughly 25%-30% of run-rate revenue is AI and ML tooling; the remainder is data engineering, warehouse, governance, and lakehouse workloads.",
+          "AI highlights: Mosaic AI, DBRX/compound AI, Genie, Vector Search, Lakebase, Delta Sharing, and SAP Business Data Cloud partnership expanded reach.",
+          "Customer adoption: strong uptake across Fortune 500 data-platform modernization, governed AI apps, and real-time analytics.",
+          "Outlook: growth remains high, with IPO timing dependent on market conditions and public-company readiness."
+        ],
+        source: "https://www.databricks.com/company/newsroom"
+      },
+      {
+        name: "Cohesity", ticker: "Private", period: "2026 public estimate after Veritas data-protection combination", tag: "Data security",
+        revenue: "$1.7B est. pro forma", yoy: "+5%-10% est.", eps: "N/A", netIncome: "Not disclosed",
+        privateMetric: "Revenue and growth estimate only",
+        bullets: [
+          "Estimate reflects Cohesity plus Veritas enterprise data-protection revenue; standalone growth appears faster than the combined legacy base.",
+          "AI highlights: Gaia, data-security posture, anomaly detection, and cyber vaulting are central to post-merger positioning.",
+          "Customer adoption: enterprise backup, ransomware recovery, and Microsoft/AWS/GCP cloud recovery workloads remain core.",
+          "Outlook: integration execution and subscription conversion are the main short-term variables."
+        ],
+        source: "https://www.cohesity.com/press/"
+      },
+      {
+        name: "Cloudera", ticker: "Private", period: "2026 public estimate", tag: "Hybrid data",
+        revenue: "$1.3B est.", yoy: "+2%-5% est.", eps: "N/A", netIncome: "Not disclosed",
+        privateMetric: "Revenue and growth estimate only",
+        bullets: [
+          "Estimate reflects a mature hybrid data-platform base, with newer expansion coming from private AI, lakehouse, and cloud-native analytics.",
+          "AI highlights: Cloudera AI Inference, machine-learning workspaces, private LLM deployment, and secure on-prem/hybrid model operations.",
+          "Customer adoption: regulated enterprise and government customers remain key due to data-residency requirements.",
+          "Outlook: growth depends on converting the installed Hadoop/CDP base into AI and lakehouse modernization."
+        ],
+        source: "https://www.cloudera.com/about/news-and-blogs/press-releases.html"
+      },
+      {
+        name: "SAS", ticker: "Private", period: "2026 public estimate", tag: "Analytics AI",
+        revenue: "$3.5B est.", yoy: "+1%-3% est.", eps: "N/A", netIncome: "Not disclosed",
+        privateMetric: "Revenue and growth estimate only",
+        bullets: [
+          "Estimate reflects SAS's mature analytics, risk, fraud, and Viya software base with gradual cloud transition.",
+          "AI highlights: SAS Viya, model governance, decisioning, risk analytics, synthetic data, and industry AI offerings in financial services and healthcare.",
+          "Customer adoption: regulated analytics workloads remain sticky, especially in banking, insurance, healthcare, and public sector.",
+          "Outlook: modest growth is likely unless cloud/Viya migration and AI governance demand accelerate materially."
+        ],
+        source: "https://www.sas.com/en_us/news/press-releases.html"
+      },
+      {
+        name: "VAST Data", ticker: "Private", period: "2026 public estimate / CARR disclosures", tag: "AI data platform",
+        revenue: "$500M+ est. CARR", yoy: "+100%+ est.", eps: "N/A", netIncome: "Not disclosed",
+        privateMetric: "Revenue and growth estimate only",
+        bullets: [
+          "Estimate uses public cumulative annual recurring revenue disclosures; actual recognized revenue is not disclosed.",
+          "AI highlights: VAST Data Platform, DASE architecture, NVIDIA SuperPOD/DGX ecosystem use, and AI training/inference data pipelines.",
+          "Customer adoption: hyperscale AI labs, financial services, research, and GPU-cluster operators are central public customer themes.",
+          "Outlook: growth appears rapid, but revenue recognition, concentration, and hardware-attached cycles are less transparent."
+        ],
+        source: "https://www.vastdata.com/press-releases"
+      }
+    ];
+
+    const sourceLinks = [
+      ["SEC EDGAR company filings", "https://www.sec.gov/cgi-bin/browse-edgar"],
+      ["Yahoo Finance public quote pages", "https://finance.yahoo.com"],
+      ["MarketWatch public quote pages", "https://www.marketwatch.com"],
+      ["Barchart performance pages for YTD and 52-week ranges", "https://www.barchart.com/stocks/quotes/CRWD/performance"],
+      ["StockAnalysis SEC-derived quarterly financial tables", "https://stockanalysis.com"],
+      ["SAP Q1 2026 quarterly statement", "https://www.sap.com/docs/download/investors/2026/sap-2026-q1-statement.pdf"],
+      ["Siemens investor relations quarterly statements", "https://www.siemens.com/global/en/company/investor-relations/events-publications-ad-hoc/quarterly-statements.html"],
+      ["Dassault Systèmes investor relations", "https://www.3ds.com/investors"],
+      ["Databricks newsroom", "https://www.databricks.com/company/newsroom"],
+      ["Cohesity press releases", "https://www.cohesity.com/press/"],
+      ["Cloudera press releases", "https://www.cloudera.com/about/news-and-blogs/press-releases.html"],
+      ["SAS press releases", "https://www.sas.com/en_us/news/press-releases.html"],
+      ["VAST Data press releases", "https://www.vastdata.com/press-releases"]
+    ];
+
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const fmtPrice = (value) => `$${value.toFixed(2)}`;
+    const fmtPct = (value) => `${value > 0 ? "+" : ""}${value.toFixed(1)}%`;
+
+    function metric(label, value, sub, subClass = "") {
+      return `
+        <div class="metric">
+          <span>${label}</span>
+          <strong>${value}</strong>
+          <small class="${subClass}">${sub}</small>
+        </div>
+      `;
+    }
+
+    function renderStock(company) {
+      if (!company.stock) {
+        return `
+          ${metric("Stock Price", "Private", "Not applicable")}
+          <div class="range">
+            <div class="range-labels"><span>Private company</span><span>No public range</span></div>
+            <div class="track" style="--pos: 50%"><span class="marker"></span></div>
+          </div>
+        `;
+      }
+
+      const pos = clamp(((company.stock.price - company.stock.low) / (company.stock.high - company.stock.low)) * 100, 0, 100);
+      const ytdClass = company.stock.ytd >= 0 ? "positive" : "negative";
+      return `
+        ${metric("Stock Price", fmtPrice(company.stock.price), `YTD ${fmtPct(company.stock.ytd)}`, ytdClass)}
+        <div class="range">
+          <div class="range-labels">
+            <span>${fmtPrice(company.stock.low)}</span>
+            <span>52W range</span>
+            <span>${fmtPrice(company.stock.high)}</span>
+          </div>
+          <div class="track" style="--pos: ${pos}%"><span class="marker"></span></div>
+        </div>
+      `;
+    }
+
+    function renderCard(company) {
+      const privateGrowth = company.privateMetric ? metric("Estimate Note", company.privateMetric, "Private company") : "";
+      return `
+        <article class="card">
+          <div class="title-row">
+            <h2>${company.name} (${company.ticker})<span class="period">${company.period}</span></h2>
+            <span class="pill">${company.tag}</span>
+          </div>
+          <div class="metrics">
+            ${metric("Revenue", company.revenue, `YoY ${company.yoy}`, company.yoy.includes("-") ? "negative" : "positive")}
+            ${metric("EPS / Net Income", company.eps, `Net income ${company.netIncome}`)}
+            ${company.privateMetric ? privateGrowth : renderStock(company).split('<div class="range">')[0]}
+          </div>
+          ${company.privateMetric ? "" : renderStock(company).match(/<div class="range">[\s\S]*<\/div>\s*$/)[0]}
+          <ul>${company.bullets.map((item) => `<li>${item}</li>`).join("")}</ul>
+          <div class="source">Primary/IR link: <a href="${company.source}" target="_blank" rel="noreferrer">${new URL(company.source).hostname}</a></div>
+        </article>
+      `;
+    }
+
+    document.getElementById("cards").innerHTML = companies.map(renderCard).join("");
+    document.getElementById("sources").innerHTML = sourceLinks
+      .map(([label, href]) => `<li><a href="${href}" target="_blank" rel="noreferrer">${label}</a></li>`)
+      .join("");
+  </script>
+</body>
+</html>
