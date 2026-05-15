@@ -145,6 +145,20 @@ tbody tr:last-child td {
   line-height: 1.3;
 }
 
+.company-status {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.company-status--realtime {
+  color: #4b7f00;
+}
+
+.company-status--cached {
+  color: var(--muted);
+}
+
 .slider-cell {
   min-width: 460px;
 }

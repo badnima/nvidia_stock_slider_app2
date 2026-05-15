@@ -196,6 +196,8 @@ async function refreshQuotes({ force = false } = {}) {
 }
 
 function serializePayload(payload) {
+  const latestRefreshLabel = payload.updatedLabel || null;
+
   return {
     updatedAt: payload.updatedLabel || payload.updatedAt || null,
     updatedIso: payload.updatedAt || null,
@@ -203,7 +205,12 @@ function serializePayload(payload) {
     lastAttemptAt: payload.lastAttemptAt || null,
     refreshCursor: payload.refreshCursor || 0,
     warning: payload.warning || null,
-    companies: payload.companies
+    companies: payload.companies.map((company) => ({
+      ...company,
+      dataSource: company.quoteUpdatedAt && latestRefreshLabel && company.quoteUpdatedAt === latestRefreshLabel
+        ? "real-time"
+        : "cached"
+    }))
   };
 }
 

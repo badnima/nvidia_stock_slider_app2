@@ -23,10 +23,16 @@ function renderMessage(message) {
 function renderCompanies(companies) {
   rows.innerHTML = companies.map((company) => {
     const percent = Math.max(0, Math.min(100, positionPercent(company)));
+    const isRealTime = company.dataSource === "real-time";
+    const statusLabel = isRealTime ? "Real-Time" : "Cached";
+    const statusClass = isRealTime ? "company-status--realtime" : "company-status--cached";
     return `
       <tr>
         <td>
-          <div class="company-name">${company.name}</div>
+          <div class="company-name">
+            ${company.name}
+            <span class="company-status ${statusClass}">(${statusLabel})</span>
+          </div>
         </td>
         <td class="slider-cell">
           <div class="slider-track" aria-label="${company.name} 52-week stock position">
