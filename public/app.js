@@ -1,5 +1,6 @@
 const rows = document.getElementById("rows");
 const updatedAt = document.getElementById("updated-at");
+const realtimeCount = document.getElementById("realtime-count");
 const warningText = document.getElementById("warning-text");
 const creditsUsed = document.getElementById("credits-used");
 const refreshButton = document.getElementById("refresh-button");
@@ -107,6 +108,8 @@ async function loadStocks({ showLoading = true } = {}) {
       typeof company.week52High === "number" &&
       company.week52High > company.week52Low
     ));
+    const totalCount = payload.companies.length;
+    const realtimeTickerCount = payload.companies.filter((company) => company.dataSource === "real-time").length;
 
     companies.sort((left, right) => positionPercent(right) - positionPercent(left));
 
@@ -114,6 +117,10 @@ async function loadStocks({ showLoading = true } = {}) {
       updatedAt.textContent = payload.marketDate
         ? `Latest quote date: ${payload.marketDate} · Cache refreshed: ${payload.updatedAt}`
         : `Cache refreshed: ${payload.updatedAt}`;
+    }
+
+    if (realtimeCount) {
+      realtimeCount.textContent = `${realtimeTickerCount}/${totalCount} stock quotes are real-time`;
     }
 
     if (warningText) {
@@ -131,6 +138,9 @@ async function loadStocks({ showLoading = true } = {}) {
     console.error("Failed to load live stock data:", error);
     if (updatedAt) {
       updatedAt.textContent = "Latest quote date: unavailable";
+    }
+    if (realtimeCount) {
+      realtimeCount.textContent = "Real-time quote count unavailable";
     }
     if (warningText) {
       warningText.hidden = true;
