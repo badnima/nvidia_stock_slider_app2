@@ -22,7 +22,7 @@ const USAGE_CACHE_TTL_MS = 60 * 60 * 1000;
 const STOCKS_CACHE_TTL_MS = parsePositiveInt(process.env.STOCKS_CACHE_TTL_MINUTES, 15) * 60 * 1000;
 const TWELVE_DATA_BATCH_SIZE = clamp(parsePositiveInt(process.env.TWELVE_DATA_BATCH_SIZE, 8), 1, 8);
 const TWELVE_DATA_CONCURRENCY = clamp(parsePositiveInt(process.env.TWELVE_DATA_CONCURRENCY, 5), 1, 8);
-const TWELVE_DATA_COOLDOWN_MS = parsePositiveInt(process.env.TWELVE_DATA_COOLDOWN_SECONDS, 65) * 1000;
+const TWELVE_DATA_COOLDOWN_MS = parsePositiveInt(process.env.TWELVE_DATA_COOLDOWN_SECONDS, 60) * 1000;
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -61,6 +61,21 @@ function getMarketDate(companies) {
   return companies.reduce((latest, company) => (
     company.marketDate && (!latest || company.marketDate > latest) ? company.marketDate : latest
   ), null);
+}
+
+function getQuoteUpdatedMs(company) {
+  const candidate = company?.quoteUpdatedAtIso || company?.quoteUpdatedAt || null;
+  if (!candidate) {
+    return 0;
+  }
+
+  const parsed = Date.parse(candidate);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function isRealTimeCompany(company, nowMs) {
+  const quoteUpdatedMs = getQuoteUpdatedMs(company);
+  return Boolean(quoteUpdatedMs) && (nowMs - quoteUpdatedMs) < STOCKS_CACHE_TTL_MS;
 }
 
 function getBatch(stocksList, startIndex, batchSize) {
@@ -156,7 +171,8 @@ async function refreshQuotes({ force = false } = {}) {
         companyBySymbol.set(quote.symbol, {
           ...existing,
           ...quote,
-          quoteUpdatedAt: formatTimestamp(now)
+          quoteUpdatedAt: formatTimestamp(now),
+          quoteUpdatedAtIso: now.toISOString()
         });
       }
 
@@ -167,7 +183,8 @@ async function refreshQuotes({ force = false } = {}) {
         week52Low: null,
         week52High: null,
         marketDate: null,
-        quoteUpdatedAt: null
+        quoteUpdatedAt: null,
+        quoteUpdatedAtIso: null
       });
       payload.refreshCursor = (payload.refreshCursor + batch.length) % stocks.length;
       payload.marketDate = getMarketDate(payload.companies);
@@ -196,7 +213,7 @@ async function refreshQuotes({ force = false } = {}) {
 }
 
 function serializePayload(payload) {
-  const latestRefreshLabel = payload.updatedLabel || null;
+  const nowMs = Date.now();
 
   return {
     updatedAt: payload.updatedLabel || payload.updatedAt || null,
@@ -207,7 +224,7 @@ function serializePayload(payload) {
     warning: payload.warning || null,
     companies: payload.companies.map((company) => ({
       ...company,
-      dataSource: company.quoteUpdatedAt && latestRefreshLabel && company.quoteUpdatedAt === latestRefreshLabel
+      dataSource: isRealTimeCompany(company, nowMs)
         ? "real-time"
         : "cached"
     }))
