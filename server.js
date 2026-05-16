@@ -19,9 +19,19 @@ const usageCache = {
 let refreshInFlight = null;
 
 const USAGE_CACHE_TTL_MS = 60 * 60 * 1000;
+const TWELVE_DATA_API_CREDITS_PER_MINUTE = parsePositiveInt(process.env.TWELVE_DATA_API_CREDITS_PER_MINUTE, 55);
+const MAX_BATCH_SIZE = Math.min(stocks.length, TWELVE_DATA_API_CREDITS_PER_MINUTE);
 const STOCKS_CACHE_TTL_MS = parsePositiveInt(process.env.STOCKS_CACHE_TTL_MINUTES, 15) * 60 * 1000;
-const TWELVE_DATA_BATCH_SIZE = clamp(parsePositiveInt(process.env.TWELVE_DATA_BATCH_SIZE, 8), 1, 8);
-const TWELVE_DATA_CONCURRENCY = clamp(parsePositiveInt(process.env.TWELVE_DATA_CONCURRENCY, 5), 1, 8);
+const TWELVE_DATA_BATCH_SIZE = clamp(
+  parsePositiveInt(process.env.TWELVE_DATA_BATCH_SIZE, MAX_BATCH_SIZE),
+  1,
+  MAX_BATCH_SIZE
+);
+const TWELVE_DATA_CONCURRENCY = clamp(
+  parsePositiveInt(process.env.TWELVE_DATA_CONCURRENCY, Math.min(12, TWELVE_DATA_BATCH_SIZE)),
+  1,
+  TWELVE_DATA_BATCH_SIZE
+);
 const TWELVE_DATA_COOLDOWN_MS = parsePositiveInt(process.env.TWELVE_DATA_COOLDOWN_SECONDS, 60) * 1000;
 
 function clamp(value, min, max) {
