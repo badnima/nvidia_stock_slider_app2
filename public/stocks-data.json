@@ -1,246 +1,200 @@
 {
-  "updatedAt": "May 13, 2026, 10:54 AM PDT",
-  "marketDate": "2026-05-13",
+  "updatedAt": "May 26, 2026, 10:25 AM PDT",
+  "marketDate": "2026-05-26",
   "companies": [
     {
       "name": "ServiceNow",
       "symbol": "NOW",
-      "currentPrice": 89.05,
+      "currentPrice": 101.57,
       "week52Low": 81.24,
       "week52High": 211.48,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Palantir",
       "symbol": "PLTR",
-      "currentPrice": 139.65,
-      "week52Low": 105.32,
+      "currentPrice": 137.17,
+      "week52Low": 118.93,
       "week52High": 207.52,
-      "marketDate": "2026-05-13"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "NVIDIA",
       "symbol": "NVDA",
-      "currentPrice": 220.78,
-      "week52Low": 129.16,
-      "week52High": 223.75,
-      "marketDate": "2026-05-13"
+      "currentPrice": 213.64,
+      "week52Low": 132.92,
+      "week52High": 236.54,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "CrowdStrike",
       "symbol": "CRWD",
-      "currentPrice": 468.07,
+      "currentPrice": 673.32,
       "week52Low": 342.72,
-      "week52High": 566.9,
-      "marketDate": "2026-05-07"
+      "week52High": 677.5,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Salesforce",
       "symbol": "CRM",
-      "currentPrice": 186.24,
+      "currentPrice": 182,
       "week52Low": 163.52,
-      "week52High": 296.05,
-      "marketDate": "2026-05-13"
+      "week52High": 278.81,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "SAP",
       "symbol": "SAP",
-      "currentPrice": 199.72,
-      "week52Low": 189.22,
+      "currentPrice": 176.08,
+      "week52Low": 158.58,
       "week52High": 313.28,
-      "marketDate": "2026-05-13"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "IBM",
       "symbol": "IBM",
-      "currentPrice": 225.74,
-      "week52Low": 220.72,
+      "currentPrice": 250.73,
+      "week52Low": 212.34,
       "week52High": 324.9,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Snowflake",
       "symbol": "SNOW",
-      "currentPrice": 121.11,
+      "currentPrice": 178.62,
       "week52Low": 118.3,
       "week52High": 280.67,
-      "marketDate": "2026-05-13"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Oracle",
       "symbol": "ORCL",
-      "currentPrice": 194.03,
+      "currentPrice": 191.13,
       "week52Low": 134.57,
       "week52High": 345.72,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Adobe",
       "symbol": "ADBE",
-      "currentPrice": 250.17,
+      "currentPrice": 241.98,
       "week52Low": 224.13,
-      "week52High": 422.95,
-      "marketDate": "2026-05-07"
+      "week52High": 421.48,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Workday",
       "symbol": "WDAY",
-      "currentPrice": 131.47,
-      "week52Low": 117.76,
-      "week52High": 276,
-      "marketDate": "2026-05-13"
+      "currentPrice": 124.81,
+      "week52Low": 110.36,
+      "week52High": 257.09,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Atlassian",
       "symbol": "TEAM",
-      "currentPrice": 88.8,
+      "currentPrice": 85.94,
       "week52Low": 56.01,
-      "week52High": 232.36,
-      "marketDate": "2026-05-07"
+      "week52High": 222.59,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "DocuSign",
       "symbol": "DOCU",
-      "currentPrice": 45.33,
+      "currentPrice": 49.84,
       "week52Low": 40.16,
       "week52High": 94.67,
-      "marketDate": "2026-05-13"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Elastic",
       "symbol": "ESTC",
-      "currentPrice": 49.11,
+      "currentPrice": 54.64,
       "week52Low": 42.05,
       "week52High": 96.07,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Siemens",
       "symbol": "SIEGY",
-      "currentPrice": 157.61,
+      "currentPrice": 155.3,
       "week52Low": 115.56,
       "week52High": 161.8,
-      "marketDate": "2026-05-13"
+      "marketDate": "2026-05-22"
     },
     {
       "name": "Dassault Systemes",
       "symbol": "DASTY",
-      "currentPrice": 23.22,
+      "currentPrice": 23.69,
       "week52Low": 18.99,
-      "week52High": 39.05,
-      "marketDate": "2026-05-07"
+      "week52High": 38.65,
+      "marketDate": "2026-05-22"
     },
     {
       "name": "Synopsys",
       "symbol": "SNPS",
-      "currentPrice": 380.47,
-      "week52Low": 365.74,
+      "currentPrice": 533.33,
+      "week52Low": 376.18,
       "week52High": 651.73,
-      "marketDate": "2026-05-13"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Cadence",
       "symbol": "CDNS",
-      "currentPrice": 354.9,
+      "currentPrice": 379.91,
       "week52Low": 262.75,
-      "week52High": 376.45,
-      "marketDate": "2026-05-07"
+      "week52High": 383.24,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Zoom",
       "symbol": "ZM",
-      "currentPrice": 105.13,
+      "currentPrice": 101.11,
       "week52Low": 69.15,
-      "week52High": 109.5,
-      "marketDate": "2026-05-07"
+      "week52High": 113.73,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Akamai",
       "symbol": "AKAM",
-      "currentPrice": 121.99,
+      "currentPrice": 147.2,
       "week52Low": 69.78,
-      "week52High": 122.24,
-      "marketDate": "2026-05-07"
+      "week52High": 165.45,
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Box",
       "symbol": "BOX",
-      "currentPrice": 24.24,
+      "currentPrice": 26.02,
       "week52Low": 21.34,
       "week52High": 38.8,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Cloudflare",
       "symbol": "NET",
-      "currentPrice": 248.59,
-      "week52Low": 120.46,
+      "currentPrice": 220.77,
+      "week52Low": 158.83,
       "week52High": 260,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Commvault",
       "symbol": "CVLT",
-      "currentPrice": 101.21,
+      "currentPrice": 108.65,
       "week52Low": 71.75,
       "week52High": 200.69,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Dropbox",
       "symbol": "DBX",
-      "currentPrice": 24.69,
+      "currentPrice": 26.99,
       "week52Low": 21.7,
       "week52High": 32.4,
-      "marketDate": "2026-05-07"
+      "marketDate": "2026-05-26"
     },
     {
       "name": "Fastly",
       "symbol": "FSLY",
-      "currentPrice": 31.57,
-      "week52Low": 5.63,
-      "week52High": 34.82,
-      "marketDate": "2026-05-07"
-    },
-    {
-      "name": "MongoDB",
-      "symbol": "MDB",
-      "currentPrice": 265.26,
-      "week52Low": 169.26,
-      "week52High": 444.72,
-      "marketDate": "2026-05-07"
-    },
-    {
-      "name": "NetApp",
-      "symbol": "NTAP",
-      "currentPrice": 111.74,
-      "week52Low": 91.15,
-      "week52High": 126.66,
-      "marketDate": "2026-05-07"
-    },
-    {
-      "name": "Pure Storage",
-      "symbol": "PSTG",
-      "currentPrice": 74.43,
-      "week52Low": 46.31,
-      "week52High": 100.59,
-      "marketDate": "2026-05-07"
-    },
-    {
-      "name": "Rubrik",
-      "symbol": "RBRK",
-      "currentPrice": 57.78,
-      "week52Low": 42.25,
-      "week52High": 103,
-      "marketDate": "2026-05-07"
-    },
-    {
-      "name": "Teradata",
-      "symbol": "TDC",
-      "currentPrice": 30.28,
-      "week52Low": 19.83,
-      "week52High": 41.78,
-      "marketDate": "2026-05-07"
-    }
-  ]
-}
+      "currentPrice": 17.18,
